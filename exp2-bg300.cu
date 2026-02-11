@@ -46,18 +46,6 @@ __global__ __launch_bounds__(BlockSize) void kernel_ex2_fp32(void* out) {
   kernel_ex2<float, uint32_t>([] __device__ (uint32_t& src) { asm volatile("ex2.approx.ftz.f32 %0, %0;" : "+r"(src) :: "memory"); }, out);
 }
 
-__global__ __launch_bounds__(BlockSize) void kernel_tanh_bf162(void* out) {
-  kernel_ex2<__nv_bfloat162, uint32_t>([] __device__ (uint32_t& src) { asm volatile("tanh.approx.bf16x2 %0, %0;" : "+r"(src) :: "memory"); }, out);
-}
-
-__global__ __launch_bounds__(BlockSize) void kernel_tanh_bf16(void* out) {
-  kernel_ex2<__nv_bfloat16, uint16_t>([] __device__ (uint16_t& src) { asm volatile("tanh.approx.bf16 %0, %0;" : "+h"(src) :: "memory"); }, out);
-}
-
-__global__ __launch_bounds__(BlockSize) void kernel_tanh_fp32(void* out) {
-  kernel_ex2<float, uint32_t>([] __device__ (uint32_t& src) { asm volatile("tanh.approx.f32 %0, %0;" : "+r"(src) :: "memory"); }, out);
-}
-
 int main() {
   int num_sms = 1;
   cudaDeviceGetAttribute(&num_sms, cudaDevAttrMultiProcessorCount, 0);
@@ -99,12 +87,6 @@ int main() {
   bench("exp2 BF16", kernel_ex2_bf16);
   cudaDeviceSynchronize();
   bench("exp2 FP32", kernel_ex2_fp32);
-  cudaDeviceSynchronize();
-  bench("Tanh BF16x2", kernel_tanh_bf162);
-  cudaDeviceSynchronize();
-  bench("Tanh BF16", kernel_tanh_bf16);
-  cudaDeviceSynchronize();
-  bench("Tanh FP32", kernel_tanh_fp32);
   cudaDeviceSynchronize();
 
   cudaStreamDestroy(stream);
